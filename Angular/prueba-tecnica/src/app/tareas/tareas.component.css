@@ -1,0 +1,32 @@
+.tareas-container {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.header-section h1 {
+    color: #333;
+    font-size: 2.5rem;
+}
+
+.add-task-btn {
+    background-color: #af814c;
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+.add-task-btn:hover {
+    background-color: #8b673d;
+}
