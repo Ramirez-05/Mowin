@@ -69,15 +69,15 @@ def actualizar_categoria_tareas(tareas: list[Tarea], es_get: bool = False):
         # Si estamos en un GET y la categoría es 4, no se modifica
         if es_get and tarea.id_categoria == 4:
             continue
-        # Si no es un GET (en POST o PUT), actualizamos la categoría normalmente
+        
+        # Calculamos la diferencia en días entre la fecha de vencimiento y la fecha actual
         diferencia_dias = (datetime.today().date() - tarea.fecha_vencimiento).days
         
+        # Cambiar la categoría en función de la diferencia de días
         if diferencia_dias < 1:
-            tarea.id_categoria = 1  # En progreso
+            tarea.id_categoria = 1
         elif diferencia_dias == 1:
-            tarea.id_categoria = 2  # Incompleta
-        elif diferencia_dias >= 2:
-            tarea.id_categoria = 3  # Fuera de tiempo
-    
+            tarea.id_categoria = 2 
+        elif diferencia_dias > 1:  
+            tarea.id_categoria = 3  
     return tareas
-
