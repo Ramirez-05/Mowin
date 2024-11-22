@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
 import { TareasService } from './tareas.service';
-import { Tarea, Persona, TareaProgramadaNew } from '../api/interfaces';
+import { TareaBase, Persona, TareaProgramadaNew } from '../api/interfaces';
 import { FormsModule } from '@angular/forms';
 import { fechaPasadaValidator } from '../shared/validators';
 
@@ -13,24 +12,24 @@ type EstadoTarea = 'Pendiente' | 'Fuera de tiempo';
 @Component({
     selector: 'app-tareas',
     standalone: true,
-    imports: [CommonModule, HttpClientModule, ReactiveFormsModule, FormsModule],
+    imports: [CommonModule, ReactiveFormsModule, FormsModule],
     providers: [TareasService],
     templateUrl: './tareas.component.html',
     styleUrls: ['./tareas.component.css']
 })
 export class TareasComponent implements OnInit {
-    tareas: Tarea[] = [];
+    tareas: TareaBase[] = [];
     error: string = '';
     mostrarModal = false;
     mostrarModalUpdate = false;
     tareaForm: FormGroup;
     editForm: FormGroup;
     fechaMinima: string;
-    tareaEditando: Tarea | null = null;
+    tareaEditando: TareaBase | null = null;
     mostrarModalConfirmacion = false;
     tareaAEliminar: number | null = null;
     mostrarModalAsignacion = false;
-    tareaAsignar: Tarea | null = null;
+    tareaAsignar: TareaBase | null = null;
     personas: Persona[] = [];
     personaSeleccionada: number | null = null;
     modalAsignacionAbierto = false;
@@ -99,16 +98,16 @@ export class TareasComponent implements OnInit {
                 titulo: formData.titulo,
                 descripcion: formData.descripcion,
                 fecha_vencimiento: formData.fecha_vencimiento,
-                id_categoria: this.estadoToIdCategoria[formData.estado as EstadoTarea]
+                id_categoria: 2
             };
 
             this.tareasService.createTarea(tareaData).subscribe({
-                next: (tarea) => {
-                    const tareaConCategoria = {
-                        ...tarea,
-                        categoria_nombre: formData.estado || 'Pendiente'
+                next: (response) => {
+                    const nuevaTarea: TareaBase = {
+                        ...response,
+                        categoria_nombre: 'Pendiente'
                     };
-                    this.tareas = [...this.tareas, tareaConCategoria];
+                    this.tareas = [...this.tareas, nuevaTarea];
                     this.cerrarModal();
                     this.error = '';
                     this.cargarTareas();
@@ -150,7 +149,7 @@ export class TareasComponent implements OnInit {
         }
     }
     
-    editarTarea(tarea: Tarea) {
+    editarTarea(tarea: TareaBase) {
         this.tareaEditando = tarea;
         this.mostrarModalUpdate = true;
         
@@ -163,31 +162,50 @@ export class TareasComponent implements OnInit {
     }
 
     marcarCamposComoTocados() {
-        Object.keys(this.tareaForm.controls).forEach(key => {
-            const control = this.tareaForm.get(key);
-            control?.markAsTouched();
-        });
+        if (this.mostrarModal) {
+            Object.keys(this.tareaForm.controls).forEach(key => {
+                this.tareaForm.get(key)?.markAsTouched();
+            });
+        }
+        if (this.mostrarModalUpdate) {
+            Object.keys(this.editForm.controls).forEach(key => {
+                this.editForm.get(key)?.markAsTouched();
+            });
+        }
     }
 
-    // Getters para facilitar la validación en la plantilla
+    // Getters para el formulario de creación
     get tituloInvalido() {
-        return this.tareaForm.get('titulo')?.invalid && this.tareaForm.get('titulo')?.touched;
+        return this.mostrarModal ? 
+            (this.tareaForm.get('titulo')?.invalid && this.tareaForm.get('titulo')?.touched) :
+            (this.editForm.get('titulo')?.invalid && this.editForm.get('titulo')?.touched);
     }
 
     get descripcionInvalida() {
-        return this.tareaForm.get('descripcion')?.invalid && this.tareaForm.get('descripcion')?.touched;
+        return this.mostrarModal ?
+            (this.tareaForm.get('descripcion')?.invalid && this.tareaForm.get('descripcion')?.touched) :
+            (this.editForm.get('descripcion')?.invalid && this.editForm.get('descripcion')?.touched);
     }
 
     get fechaInvalida() {
-        return this.tareaForm.get('fecha_vencimiento')?.invalid && this.tareaForm.get('fecha_vencimiento')?.touched;
+        return this.mostrarModal ?
+            (this.tareaForm.get('fecha_vencimiento')?.invalid && this.tareaForm.get('fecha_vencimiento')?.touched) :
+            (this.editForm.get('fecha_vencimiento')?.invalid && this.editForm.get('fecha_vencimiento')?.touched);
     }
 
     get fechaPasadaError() {
-        return this.tareaForm.get('fecha_vencimiento')?.errors?.['fechaPasada'] && this.tareaForm.get('fecha_vencimiento')?.touched;
+        return this.mostrarModal ?
+            (this.tareaForm.get('fecha_vencimiento')?.errors?.['fechaPasada'] && this.tareaForm.get('fecha_vencimiento')?.touched) :
+            (this.editForm.get('fecha_vencimiento')?.errors?.['fechaPasada'] && this.editForm.get('fecha_vencimiento')?.touched);
     }
 
     get estadoInvalido() {
         return this.tareaForm.get('estado')?.invalid && this.tareaForm.get('estado')?.touched;
+    }
+
+    get categoriaInvalida() {
+        return this.editForm.get('id_categoria')?.invalid && 
+               this.editForm.get('id_categoria')?.touched;
     }
 
     cargarTareas() {
@@ -235,7 +253,7 @@ export class TareasComponent implements OnInit {
         }
     }
 
-    abrirModalAsignacion(tarea: Tarea) {
+    abrirModalAsignacion(tarea: TareaBase) {
         this.tareaAsignar = tarea;
         this.mostrarModalAsignacion = true;
         this.personaSeleccionada = null;

@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from Api.schemas.tarea import TareaBase, TareaRead, TareaUpdate
+from Api.schemas.tarea import TareaBase, TareaRead, TareaUpdate, TareaUpdateCategoria
 from db.connection import get_session
 from core.utils import serverStatus
-from Api.crud.tarea import create_new_tarea, update_tarea, delete_tarea, actualizar_categoria_tareas
+from Api.crud.tarea import create_new_tarea, update_tarea, delete_tarea, actualizar_categoria_tareas, update_tarea_catagoria
 from Api.models.tarea import Tarea
 from Api.models.categoria import Categoria
 from Api.models.tarea_programada import TareaProgramada
@@ -86,3 +86,10 @@ def delete_tarea_rouet(id_tarea: int, db: Session = Depends(get_session)):
     if not serverStatus(db):
         raise HTTPException(status_code=503, detail="El servidor no está disponible.")
     return delete_tarea(id_tarea,db)
+
+# Ruta para actualizar solo la categoría de las tareas
+@router.put("/update_categoria_tareas", response_model=TareaUpdateCategoria)
+def update_categoria_tareas_route(tarea: TareaUpdateCategoria, db: Session = Depends(get_session)):
+    if not serverStatus(db):
+        raise HTTPException(status_code=503, detail="El servidor no está disponible.")
+    return update_tarea_catagoria(tarea, db)

@@ -3,7 +3,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import * as API from '../api/api';
-import { Tarea, Persona, TareaProgramadaNew } from '../api/interfaces';
+import { TareaBase, Persona, TareaProgramadaNew, PersonaConTareas } from '../api/interfaces';
+import { API_ENDPOINTS } from '../api/constants';
 
 @Injectable({
   providedIn: 'root'
@@ -11,15 +12,15 @@ import { Tarea, Persona, TareaProgramadaNew } from '../api/interfaces';
 export class TareasService {
   constructor(private http: HttpClient) {}
 
-  getTareas(): Observable<Tarea[]> {
+  getTareas(): Observable<TareaBase[]> {
     return API.getTareas(this.http);
   }
 
-  createTarea(tarea: Partial<Tarea>): Observable<Tarea> {
+  createTarea(tarea: Partial<TareaBase>): Observable<TareaBase> {
     return API.createTarea(this.http, tarea);
   }
 
-  updateTarea(tarea: Partial<Tarea>): Observable<Tarea> {
+  updateTarea(tarea: Partial<TareaBase>): Observable<TareaBase> {
     return API.updateTarea(this.http, tarea);
   }
 

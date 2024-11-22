@@ -20,7 +20,6 @@ async def get_tareas_programadas(db: Session = Depends(get_session)):
 
     result = []
     for persona in personas:
-        # Check if the person has any assigned tasks
         if persona.tareas_programadas:
             tareas_programadas = []
             for tarea_programada in persona.tareas_programadas:

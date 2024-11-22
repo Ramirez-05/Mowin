@@ -1,6 +1,6 @@
 from Api.models.tarea import Tarea
 from sqlalchemy.orm import Session
-from Api.schemas.tarea import TareaBase, TareaUpdate
+from Api.schemas.tarea import TareaBase, TareaUpdate, TareaUpdateCategoria
 from fastapi import HTTPException
 import sys
 from core.utils import check_categoria_existente
@@ -73,3 +73,17 @@ def actualizar_categoria_tareas(tareas: list[Tarea], es_get: bool = False):
         if diferencia_dias > 0: 
             tarea.id_categoria = 3  
     return tareas
+
+
+def update_tarea_catagoria (tarea: TareaUpdateCategoria, db: Session):
+    db_tarea = db.query(Tarea).filter(Tarea.id_tarea == tarea.id_tarea).first()
+    if db_tarea is None:
+        raise HTTPException(status_code=404, detail="La tarea no existe")
+    try:
+        db_tarea.id_categoria = tarea.id_categoria
+        db.commit()
+        db.refresh(db_tarea)
+        return db_tarea
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="No se pudo actualizar la tarea")

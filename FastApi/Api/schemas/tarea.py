@@ -48,10 +48,18 @@ class TareaRead(BaseModel):
         str_strip_whitespace = True
 
 class TareaUpdate(TareaBase):
+
     id_tarea: int
     titulo: str
     descripcion: str
     fecha_vencimiento: date
+    id_categoria: int
+
+    class Config:
+        str_strip_whitespace = True
+
+class TareaUpdateCategoria(BaseModel):
+    id_tarea: int
     id_categoria: int
 
     class Config:

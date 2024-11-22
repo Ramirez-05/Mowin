@@ -1,0 +1,52 @@
+<div class="assigned-tasks-container">
+    <div class="header-section">
+        <h1>Tareas Asignadas</h1>
+    </div>
+
+    <div class="tareas-grid">
+        <div class="tarea-card" *ngFor="let persona of personasConTareas">
+            <div class="tarea-header">
+                <h3>{{ persona.nombre }} {{ persona.apellido }}</h3>
+                <span class="categoria-badge">{{ persona.tareas_programadas.length }} Tareas</span>
+            </div>
+            
+            <div class="tarea-content">
+                <div class="persona-info">
+                    <i class="fas fa-id-card"></i>
+                    <span>{{ persona.cedula }}</span>
+                </div>
+                
+                <div *ngFor="let tarea of persona.tareas_programadas" class="tarea-item">
+                    <div class="tarea-item-header">
+                        <h4>{{ tarea.titulo }}</h4>
+                        <div class="estado-container">
+                            <span class="estado-badge" [ngClass]="getCategoryClass(tarea.categoria.nombre)">
+                                {{ tarea.categoria.nombre }}
+                            </span>
+                            <ng-container *ngIf="tarea.categoria.nombre === 'Completada'; else checkboxTemplate">
+                                <button class="uncheck-btn" (click)="onUncheckTask(tarea)">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </ng-container>
+                            <ng-template #checkboxTemplate>
+                                <input 
+                                    type="checkbox" 
+                                    class="task-checkbox"
+                                    (change)="onCheckboxChange(tarea)"
+                                    [checked]="tarea.categoria.nombre === 'Completada'"
+                                />
+                            </ng-template>
+                        </div>
+                    </div>
+                    
+                    <p class="descripcion">{{ tarea.descripcion }}</p>
+                    
+                    <div class="fecha-container">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span class="fecha">{{ tarea.fecha_vencimiento | date:'dd/MM/yyyy' }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

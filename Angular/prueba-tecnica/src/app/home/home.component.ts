@@ -9,5 +9,4 @@ import { CommonModule } from '@angular/common';
     styleUrls: ['./home.component.css']
 })
 export class HomeComponent {
-    // Puedes agregar lógica adicional aquí si lo necesitas
 }
