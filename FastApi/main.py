@@ -7,7 +7,7 @@ api_router = APIRouter()
 
 api_router.include_router(persona.router, prefix="/persona", tags=["Persona"])
 api_router.include_router(tarea.router, prefix="/tarea", tags=["Tarea"])
-api_router.include_router(tarea_programada.router, prefix="/tarea_programada", tags=["Tarea Programada"])
+api_router.include_router(tarea_programada.router, prefix="/tareaProgramada", tags=["Tarea Programada"])
 
 
 app = FastAPI(
@@ -18,7 +18,7 @@ app = FastAPI(
 
 # Configurar CORS con especificidad
 origins = [
-    "http://localhost:3000"
+    "http://localhost:4200"
 ]
 
 app.add_middleware(

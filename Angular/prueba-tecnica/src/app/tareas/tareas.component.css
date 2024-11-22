@@ -1,5 +1,5 @@
 .tareas-container {
-    padding: 2rem;
+    padding: 1rem;
     max-width: 1200px;
     margin: 0 auto;
 }
@@ -9,11 +9,14 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
 .header-section h1 {
     color: #333;
-    font-size: 2.5rem;
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    margin: 0;
 }
 
 .add-task-btn {
@@ -29,4 +32,412 @@
 
 .add-task-btn:hover {
     background-color: #8b673d;
+}
+
+.tareas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+    padding: 0.5rem;
+}
+
+.tarea-card {
+    width: 100%;
+    min-width: 250px;
+    max-width: 100%;
+    margin: 0 auto;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.tarea-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.tarea-header {
+    background-color: #f8f8f8;
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.tarea-header h3 {
+    margin: 0;
+    color: #333;
+    font-size: 1.2rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+    min-width: 0;
+}
+
+.tarea-content {
+    padding: 1rem;
+    flex-grow: 1;
+}
+
+.descripcion {
+    color: #666;
+    margin: 0 0 1rem 0;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.fecha-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.tarea-actions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.3rem;
+    padding: 0.8rem;
+    background-color: #f8f8f8;
+    border-top: 1px solid #eee;
+}
+
+.action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    padding: 0.5rem 0.3rem;
+    border: none;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+.action-btn i {
+    font-size: 1rem;
+}
+
+.action-btn.asignar {
+    background-color: #af814c;
+    color: white;
+}
+
+.action-btn.asignar:hover {
+    background-color: #8b673d;
+}
+
+.action-btn.editar {
+    background-color: #2d2d2d;
+    color: white;
+}
+
+.action-btn.editar:hover {
+    background-color: #1a1a1a;
+}
+
+.action-btn.eliminar {
+    background-color: #8B4513;
+    color: white;
+}
+
+.action-btn.eliminar:hover {
+    background-color: #6B3410;
+}
+
+.categoria-badge {
+    background-color: #af814c;
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+    .tareas-container {
+        padding: 0.8rem;
+    }
+
+    .tareas-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        padding: 0.5rem;
+    }
+
+    .tarea-card {
+        margin: 0;
+    }
+
+    .tarea-header h3 {
+        font-size: 1.1rem;
+        max-width: 60%;
+    }
+
+    .categoria-badge {
+        font-size: 0.75rem;
+        padding: 0.2rem 0.6rem;
+    }
+
+    .action-btn {
+        padding: 0.5rem 0.2rem;
+        font-size: 0.8rem;
+    }
+
+    .action-btn span {
+        display: none;
+    }
+    
+    .action-btn i {
+        font-size: 1.2rem;
+    }
+    
+    .action-btn {
+        padding: 0.6rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .add-task-btn {
+        width: 100%;
+    }
+
+    .tarea-card {
+        width: calc(100% - 1rem);
+        margin: 0 auto;
+    }
+
+    .tarea-content {
+        padding: 0.8rem;
+    }
+
+    .descripcion {
+        font-size: 0.9rem;
+        -webkit-line-clamp: 2;
+    }
+
+    .tareas-grid {
+        grid-template-columns: 1fr;
+        gap: 0.8rem;
+        padding: 0.3rem;
+    }
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    padding: 0.8rem;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h2 {
+    margin: 0;
+    color: #333;
+    font-size: 1.3rem;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: #666;
+}
+
+.modal-body {
+    padding: 1rem;
+}
+
+.form-group {
+    margin-bottom: 0.8rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.3rem;
+    color: #333;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group textarea {
+    width: calc(100% - 1.2rem);
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    background-color: #f8f8f8;
+}
+
+.form-group textarea {
+    height: 70px;
+    resize: vertical;
+    max-height: 150px;
+}
+
+.modal-footer {
+    padding: 0.8rem;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.cancel-btn, .save-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.cancel-btn {
+    background-color: #2d2d2d;
+    color: white;
+}
+
+.save-btn {
+    background-color: #af814c;
+    color: white;
+}
+
+.cancel-btn:hover {
+    background-color: #1a1a1a;
+}
+
+.save-btn:hover {
+    background-color: #8b673d;
+}
+
+.form-group input.invalid,
+.form-group textarea.invalid {
+    border-color: #dc3545;
+    background-color: #fff8f8;
+}
+
+.error-message {
+    color: #dc3545;
+    font-size: 0.8rem;
+    margin-top: 0.3rem;
+    display: block;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #af814c;
+    box-shadow: 0 0 0 2px rgba(175, 129, 76, 0.2);
+}
+
+@media (max-width: 480px) {
+    .modal-content {
+        width: 95%;
+        max-width: 350px;
+    }
+    
+    .form-group input,
+    .form-group textarea {
+        width: calc(100% - 1rem);
+        padding: 0.4rem;
+    }
+}
+
+.form-group select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    background-color: #f8f8f8;
+    cursor: pointer;
+}
+
+.form-group select.invalid {
+    border-color: #dc3545;
+    background-color: #fff8f8;
+}
+
+.form-group select:focus {
+    outline: none;
+    border-color: #af814c;
+    box-shadow: 0 0 0 2px rgba(175, 129, 76, 0.2);
+}
+
+.confirmacion-modal {
+    max-width: 350px;
+}
+
+.confirmacion-modal .modal-body {
+    text-align: center;
+    padding: 1.5rem 1rem;
+}
+
+.delete-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.9rem;
+    background-color: #8B4513;
+    color: white;
+}
+
+.delete-btn:hover {
+    background-color: #6B3410;
+}
+
+.readonly-input {
+    background-color: #f0f0f0 !important;
+    cursor: not-allowed;
+    color: #666;
+}
+
+.readonly-input:focus {
+    box-shadow: none !important;
+    border-color: #ddd !important;
 }

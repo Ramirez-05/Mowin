@@ -1,6 +1,206 @@
 <div class="tareas-container">
     <div class="header-section">
         <h1>Gestión de Tareas</h1>
-        <button class="add-task-btn">Nueva Tarea</button>
+        <button class="add-task-btn" (click)="abrirModal()">
+            <i class="fas fa-plus"></i>
+            Nueva Tarea
+        </button>
+    </div>
+
+    <div class="tareas-grid">
+        <div class="tarea-card" *ngFor="let tarea of tareas">
+            <div class="tarea-header">
+                <h3>{{ tarea.titulo }}</h3>
+                <span class="categoria-badge">{{ tarea.categoria_nombre }}</span>
+            </div>
+            <div class="tarea-content">
+                <p class="descripcion">{{ tarea.descripcion }}</p>
+                <div class="fecha-container">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span class="fecha">{{ tarea.fecha_vencimiento | date:'dd/MM/yyyy' }}</span>
+                </div>
+            </div>
+            <div class="tarea-actions">
+                <button class="action-btn asignar" (click)="abrirModalAsignacion(tarea)">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Asignar</span>
+                </button>
+                <button class="action-btn editar" (click)="editarTarea(tarea)">
+                    <i class="fas fa-edit"></i>
+                    <span>Editar</span>
+                </button>
+                <button class="action-btn eliminar" (click)="eliminarTarea(tarea.id_tarea)">
+                    <i class="fas fa-trash-alt"></i>
+                    <span>Eliminar</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para crear -->
+<div class="modal-overlay" *ngIf="mostrarModal" (click)="cerrarModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2>Crear</h2>
+            <button class="close-btn" (click)="cerrarModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form [formGroup]="tareaForm" (ngSubmit)="guardarTarea()">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="titulo">Título</label>
+                    <input type="text" id="titulo" formControlName="titulo" placeholder="Ingrese el título">
+                </div>
+                <div class="form-group">
+                    <label for="descripcion">Descripción</label>
+                    <textarea id="descripcion" formControlName="descripcion" placeholder="Ingrese la descripción"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="fecha">Fecha de Vencimiento</label>
+                    <input type="date" id="fecha" formControlName="fecha_vencimiento" [min]="fechaMinima">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="cancel-btn" (click)="cerrarModal()">Cancelar</button>
+                <button type="submit" class="save-btn">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal para editar -->
+<div class="modal-overlay" *ngIf="mostrarModalUpdate" (click)="cerrarModalUpdate()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2>Editar</h2>
+            <button class="close-btn" (click)="cerrarModalUpdate()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form [formGroup]="editForm" (ngSubmit)="guardarUpdate()">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="titulo">Título</label>
+                    <input 
+                        type="text" 
+                        id="titulo" 
+                        formControlName="titulo"
+                        [class.invalid]="tituloInvalido"
+                        placeholder="Ingrese el título">
+                    <span class="error-message" *ngIf="tituloInvalido">
+                        El título es requerido y debe tener al menos 3 caracteres
+                    </span>
+                </div>
+                <div class="form-group">
+                    <label for="descripcion">Descripción</label>
+                    <textarea 
+                        id="descripcion" 
+                        formControlName="descripcion"
+                        [class.invalid]="descripcionInvalida"
+                        placeholder="Ingrese la descripción"></textarea>
+                    <span class="error-message" *ngIf="descripcionInvalida">
+                        La descripción es requerida y debe tener al menos 10 caracteres
+                    </span>
+                </div>
+                <div class="form-group">
+                    <label for="fecha">Fecha de Vencimiento</label>
+                    <input 
+                        type="date" 
+                        id="fecha" 
+                        formControlName="fecha_vencimiento"
+                        [min]="fechaMinima"
+                        [class.invalid]="fechaInvalida || fechaPasadaError">
+                    <span class="error-message" *ngIf="fechaInvalida">
+                        La fecha de vencimiento es requerida
+                    </span>
+                    <span class="error-message" *ngIf="fechaPasadaError">
+                        No se permiten fechas pasadas
+                    </span>
+                </div>
+                <div class="form-group">
+                    <label for="categoria">Categoría</label>
+                    <select 
+                        id="categoria" 
+                        formControlName="id_categoria"
+                        [class.invalid]="editForm.get('id_categoria')?.invalid && editForm.get('id_categoria')?.touched">
+                        <option value="">Seleccione una categoría</option>
+                        <option value="2">Pendiente</option>
+                        <option value="3">Fuera de tiempo</option>
+                    </select>
+                    <span class="error-message" *ngIf="editForm.get('id_categoria')?.invalid && editForm.get('id_categoria')?.touched">
+                        Debes seleccionar una categoría
+                    </span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="cancel-btn" (click)="cerrarModalUpdate()">Cancelar</button>
+                <button type="submit" class="save-btn">Actualizar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<!-- Add this after your existing modal -->
+<div class="modal-overlay" *ngIf="mostrarModalConfirmacion" (click)="cancelarEliminacion()">
+    <div class="modal-content confirmacion-modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2>Confirmar eliminación</h2>
+        </div>
+        <div class="modal-body">
+            <p>¿Está seguro de que desea eliminar esta tarea?</p>
+        </div>
+        <div class="modal-footer">
+            <button class="cancel-btn" (click)="cancelarEliminacion()">Cancelar</button>
+            <button class="delete-btn" (click)="confirmarEliminacion()">Eliminar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Add this after your existing modals -->
+<div class="modal-overlay" *ngIf="mostrarModalAsignacion" (click)="cerrarModalAsignacion()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2>Asignar Tarea</h2>
+            <button class="close-btn" (click)="cerrarModalAsignacion()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Título</label>
+                <input type="text" [value]="tareaAsignar?.titulo" readonly class="readonly-input">
+            </div>
+            <div class="form-group">
+                <label>Descripción</label>
+                <textarea readonly class="readonly-input">{{tareaAsignar?.descripcion}}</textarea>
+            </div>
+            <div class="form-group">
+                <label>Fecha de Vencimiento</label>
+                <input type="text" [value]="tareaAsignar?.fecha_vencimiento | date:'dd/MM/yyyy'" readonly class="readonly-input">
+            </div>
+            <div class="form-group">
+                <label for="persona">Asignar a</label>
+                <select 
+                    id="persona" 
+                    [(ngModel)]="personaSeleccionada"
+                    [ngModelOptions]="{standalone: true}"
+                    [class.invalid]="intentoAsignar && !personaSeleccionada">
+                    <option value="">Seleccione una persona</option>
+                    <option *ngFor="let persona of personas" [value]="persona.id_persona">
+                        {{persona.nombre}}
+                    </option>
+                </select>
+                <span class="error-message" *ngIf="intentoAsignar && !personaSeleccionada">
+                    Debes seleccionar una persona para asignar la tarea
+                </span>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="cancel-btn" (click)="cerrarModalAsignacion()">Cancelar</button>
+            <button class="save-btn" (click)="confirmarAsignacion()">Asignar</button>
+        </div>
     </div>
 </div>

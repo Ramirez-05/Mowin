@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from Api.schemas.tarea_programada import PersonaConTareasRead
+from Api.schemas.tarea_programada import PersonaConTareasRead,TareaProgramadaNew
 from db.connection import get_session
 from core.utils import serverStatus
 from Api.models.persona import Persona
 from datetime import date
 from Api.crud.tarea import actualizar_categoria_tareas
 from Api.models.categoria import Categoria
+from Api.crud.tarea_programada import create_new_tarea_programada
 
 router = APIRouter()
 
@@ -51,3 +52,8 @@ async def get_tareas_programadas(db: Session = Depends(get_session)):
     
     return result
 
+@router.post("/create_tarea_programada", response_model=TareaProgramadaNew)
+async def create_tarea_programada(tarea_p:TareaProgramadaNew, db: Session = Depends(get_session)):
+    if not serverStatus(db):
+        raise HTTPException(status_code=503, detail="La base de datos no está disponible")
+    return create_new_tarea_programada(tarea_p, db) 

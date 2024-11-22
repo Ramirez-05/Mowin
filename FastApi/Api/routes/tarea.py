@@ -1,16 +1,19 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from Api.schemas.tarea import TareaBase, TareaRead
+from Api.schemas.tarea import TareaBase, TareaRead, TareaUpdate
 from db.connection import get_session
 from core.utils import serverStatus
 from Api.crud.tarea import create_new_tarea, update_tarea, delete_tarea, actualizar_categoria_tareas
 from Api.models.tarea import Tarea
 from Api.models.categoria import Categoria
+from Api.models.tarea_programada import TareaProgramada
+
+
 
 router = APIRouter()
 
 # Ruta para crear una tarea
-@router.post("/create_tarea", response_model=TareaRead)
+@router.post("/create_tarea", response_model=TareaBase)
 def create_tarea_route(tarea: TareaBase, db: Session = Depends(get_session)):
     if not serverStatus(db):
         raise HTTPException(status_code=503, detail="El servidor no está disponible.")
@@ -20,9 +23,20 @@ def create_tarea_route(tarea: TareaBase, db: Session = Depends(get_session)):
 def get_tareas(db: Session = Depends(get_session)):
     if not serverStatus(db):
         raise HTTPException(status_code=503, detail="El servidor no está disponible.")
-    tareas = db.query(Tarea).all()
-    tareas_actualizadas = actualizar_categoria_tareas(tareas, es_get=True)
+    
+    # Consulta para obtener tareas no asignadas
+    tareas_no_asignadas = (
+        db.query(Tarea)
+        .join(TareaProgramada, Tarea.id_tarea == TareaProgramada.id_tarea, isouter=True)
+        .filter(TareaProgramada.id_persona == None)  # Solo tareas sin asignar
+        .all()
+    )
+    
+    # Actualizar las categorías de las tareas
+    tareas_actualizadas = actualizar_categoria_tareas(tareas_no_asignadas, es_get=True)
     tareas_con_categoria = []
+    
+    # Enriquecer las tareas con información de la categoría
     for tarea in tareas_actualizadas:
         categoria = db.query(Categoria).filter(Categoria.id_categoria == tarea.id_categoria).first()
         if categoria:
@@ -34,6 +48,7 @@ def get_tareas(db: Session = Depends(get_session)):
                 categoria_nombre=categoria.nombre
             )
             tareas_con_categoria.append(tarea_data)
+    
     return tareas_con_categoria
 
 # Ruta para obtener una tarea por su id
@@ -59,8 +74,8 @@ def get_tarea(id_tarea: int, db: Session = Depends(get_session)):
     return tarea_con_categoria
 
 # Ruta para actualizar una tarea
-@router.put("/update_tarea", response_model=TareaRead)
-def update_tarea_route(tarea: TareaRead, db: Session = Depends(get_session)):
+@router.put("/update_tarea", response_model=TareaUpdate)
+def update_tarea_route(tarea: TareaUpdate, db: Session = Depends(get_session)):
     if not serverStatus(db):
         raise HTTPException(status_code=503, detail="El servidor no está disponible.")
     return update_tarea(tarea, db)

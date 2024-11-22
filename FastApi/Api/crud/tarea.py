@@ -1,6 +1,6 @@
 from Api.models.tarea import Tarea
 from sqlalchemy.orm import Session
-from Api.schemas.tarea import TareaBase, TareaRead
+from Api.schemas.tarea import TareaBase, TareaUpdate
 from fastapi import HTTPException
 import sys
 from core.utils import check_categoria_existente
@@ -8,10 +8,8 @@ from datetime import datetime, timedelta
 
 # Función para crear una tarea
 def create_new_tarea(tarea: TareaBase, db: Session):
-
-    # Verifica si la categoría existe antes de crear la tarea
+    tarea.id_categoria = tarea.id_categoria or 2
     check_categoria_existente(tarea.id_categoria, db)
-
     db_tarea = Tarea(
         titulo=tarea.titulo,
         descripcion=tarea.descripcion,
@@ -29,7 +27,7 @@ def create_new_tarea(tarea: TareaBase, db: Session):
         raise HTTPException(status_code=500, detail="No se pudo agregar la tarea")
     
 # Función para actualizar una tarea
-def update_tarea(tarea: TareaRead, db: Session):
+def update_tarea(tarea: TareaUpdate, db: Session):
 
     # Verifica si la categoría existe antes de actualizar la tarea
     check_categoria_existente(tarea.id_categoria, db)
@@ -64,20 +62,14 @@ def delete_tarea(tarea_id: int, db: Session):
         raise HTTPException(status_code=500, detail="No se pudo eliminar la tarea")
 
 
+from datetime import datetime
+
 def actualizar_categoria_tareas(tareas: list[Tarea], es_get: bool = False):
     for tarea in tareas:
         # Si estamos en un GET y la categoría es 4, no se modifica
         if es_get and tarea.id_categoria == 4:
             continue
-        
-        # Calculamos la diferencia en días entre la fecha de vencimiento y la fecha actual
-        diferencia_dias = (datetime.today().date() - tarea.fecha_vencimiento).days
-        
-        # Cambiar la categoría en función de la diferencia de días
-        if diferencia_dias < 1:
-            tarea.id_categoria = 1
-        elif diferencia_dias == 1:
-            tarea.id_categoria = 2 
-        elif diferencia_dias > 1:  
+        diferencia_dias = (datetime.today().date() - tarea.fecha_vencimiento).days 
+        if diferencia_dias > 0: 
             tarea.id_categoria = 3  
     return tareas

@@ -30,3 +30,10 @@ class PersonaConTareasRead(BaseModel):
 
     class Config:
         orm_mode = True
+
+class TareaProgramadaNew(BaseModel):
+    id_persona: int
+    id_tarea: int
+
+    class Config:
+        orm_mode = True
