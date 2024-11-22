@@ -1,21 +1,23 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TareaAsignada, PersonaConTareas } from '../api/interfaces';
 import { AssignedTaskService } from './assigned-task.service';
+import { PersonaConTareas } from '../api/interfaces';
 
 @Component({
     selector: 'app-assigned-task',
     standalone: true,
     imports: [CommonModule],
+    providers: [AssignedTaskService],
     templateUrl: './assigned-task.component.html',
     styleUrls: ['./assigned-task.component.css']
 })
-export class AssignedTaskComponent {
+export class AssignedTaskComponent implements OnInit {
     personasConTareas: PersonaConTareas[] = [];
     error: string = '';
-    tareaAsignada: TareaAsignada | null = null;
 
-    constructor(private assignedTaskService: AssignedTaskService) {
+    constructor(private assignedTaskService: AssignedTaskService) {}
+
+    ngOnInit() {
         this.cargarPersonasConTareas();
     }
 
@@ -25,27 +27,38 @@ export class AssignedTaskComponent {
                 this.personasConTareas = data;
             },
             error: (error: any) => {
-                console.error('Error al cargar personas con tareas:', error);
+                console.error('Error:', error);
                 this.error = 'Error al cargar personas con tareas';
             }
         });
     }
 
     getCategoryClass(categoryName: string): string {
-        return categoryName.toLowerCase().replace(/ /g, '-');
+        switch (categoryName.toLowerCase()) {
+            case 'pendiente':
+                return 'pendiente';
+            case 'en progreso':
+                return 'en-progreso';
+            case 'completada':
+                return 'completada';
+            case 'fuera de tiempo':
+                return 'fuera-de-tiempo';
+            default:
+                return '';
+        }
     }
 
     onCheckboxChange(tarea: any) {
         const updateData = {
             id_tarea: tarea.id_tarea,
-            id_categoria: 4 
+            id_categoria: 4  // ID 4 corresponds to "Completada"
         };
 
         this.assignedTaskService.updateTareaCategoria(updateData).subscribe({
             next: () => {
                 this.cargarPersonasConTareas();
             },
-            error: (error) => {
+            error: (error: any) => {
                 console.error('Error al actualizar la tarea:', error);
             }
         });
@@ -54,14 +67,14 @@ export class AssignedTaskComponent {
     onUncheckTask(tarea: any) {
         const updateData = {
             id_tarea: tarea.id_tarea,
-            id_categoria: 1
+            id_categoria: 1  // ID 1 corresponds to "Pendiente"
         };
 
         this.assignedTaskService.updateTareaCategoria(updateData).subscribe({
             next: () => {
                 this.cargarPersonasConTareas();
             },
-            error: (error) => {
+            error: (error: any) => {
                 console.error('Error al actualizar la tarea:', error);
             }
         });
