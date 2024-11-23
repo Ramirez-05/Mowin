@@ -2,6 +2,7 @@ from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from Api.routes import persona, tarea, tarea_programada
 from core.config import settings
+from fastapi.responses import RedirectResponse
 
 api_router = APIRouter()
 
@@ -16,9 +17,13 @@ app = FastAPI(
     description=settings.PROJECT_DESCRIPTION
 )
 
+@app.get("/", include_in_schema=False)
+async def root():
+    return RedirectResponse(url="/docs")
+
 # Configurar CORS con especificidad
 origins = [
-    "http://localhost:4200"
+    "https://mowin-frontend.onrender.com"
 ]
 
 app.add_middleware(
